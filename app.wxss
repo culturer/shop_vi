@@ -27,6 +27,9 @@ view,text{font-size: 12px;}
    display:flex;
   align-items:center;
 }
+.down-center::after{
+ clear: both
+}
 .flex-display{
   display:flex
 }
@@ -191,7 +194,7 @@ view,text{font-size: 12px;}
 }
 /*------------工具类-----------------*/
 .text-center{
-  text-align: center
+  text-align: center !important
 }
 .pull-right{
   float: right

@@ -1,18 +1,24 @@
 // pages/login/login.js
+var app=getApp()
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-  
+    nickName: "",
+    avatarUrl: ""
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-  
+    var that = this;
+    that.setData({
+      nickName: app.globalData.userInfo.nickName,
+      avatarUrl: app.globalData.userInfo.avatarUrl,
+    })
   },
 
   /**
@@ -62,5 +68,71 @@ Page({
    */
   onShareAppMessage: function () {
   
-  }
+  },
+  //跳转到注册页面
+  goToRegister:function(){
+    wx.navigateTo({
+      url: '../register/register',
+    })
+  },
+  //登陆
+  loginUser:function(){
+    var that=this
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl+'login',
+      data: {
+        options: 1,
+        tel: that.data.tel,
+        pwd:that.data.pwd
+
+      },
+      header:{
+        'content-type':'application/x-www-form-urlencoded'
+      },
+      method: 'POST',
+      success: function (res) {
+       
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon:'none'
+          })
+        } else if (res.data.status == "200") {
+          wx.showToast({
+            title: "登陆成功",
+            complete:function(){
+              //跳转到个人页面
+              setTimeout(function(){
+               wx.switchTab({
+                 url: '../index/index',
+               })
+              },2000)
+              
+            }
+          })
+          //保存用户信息         
+          app.globalData.uId = res.data.userId      
+          app.globalData.uIdSession = res.header["set-cookie"].split(';')[0]     
+          app.globalData.loginTime = res.data.time
+       
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+        // wx.navigateTo({
+        //   url: '../register/register',
+        // })
+      }
+    })
+  },
+  watchTel: function (e) {
+    var that = this
+    that.setData({ tel: e.detail.value })
+  },
+  watchPwd: function (e) {
+    var that = this
+    that.setData({ pwd: e.detail.value })
+  },
 })

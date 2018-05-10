@@ -1,2 +1,24 @@
 <!--pages/login/login.wxml-->
-<text>pages/login/login.wxml</text>
+<view class="top-mode">
+  <view class='userinfo'>
+    <image class="userinfo-avatar" src="{{avatarUrl}}"></image>
+    <label style="color:white">{{nickName}}</label>
+  </view>
+</view>
+<view class='go-center card-box'>
+  <view class='card-info'>
+      <view class='down-center' style='height:50%;border-bottom:1px solid #E3E3E3;'>
+        <i class="iconfont icon-shouji" style="color:#FF9C35"></i>
+       <input value='{{tel}}'bindinput='watchTel' style='margin-left:1em' placeholder='请输入电话'></input>
+      </view>
+      <view class='down-center' style='height:50%'> 
+        <i class="iconfont icon-youhuiquan" style="color:#B6D9A9"></i>
+       <input value='{{pwd}}'  style='margin-left:1em' bindinput='watchPwd'  placeholder='请输入密码'></input>
+      </view>
+  </view>
+</view>
+
+<view class='form-item'style="display:flex;width:70%;left:10%;position:relative;margin-top:1em" >
+ <button class='pull-left' bindtap='loginUser'>登陆</button>
+ <button class='pull-left' bindtap='goToRegister'>注册</button>
+</view>

@@ -8,17 +8,22 @@
 <view class='go-center card-box'>
   <view class='card-info'>
       <view class='down-center' style='height:50%;border-bottom:1px solid #E3E3E3;'>
-        <i class="iconfont icon-youhuiquan" style="color:#FF9C35"></i>
-        <label style='font-size:15px;margin-left:15px'>我收到的支付返券</label>
+      <label style='width:5em;text-align:right'>登陆时间</label>
+        <label style='font-size:15px;margin-left:15px'>{{loginTime}}</label>
+      </view>
+      <view class='down-center' style='height:50%；border-bottom:1px solid #E3E3E3;'> 
+         <label style='width:5em;text-align:right'>账号</label>
+        <label style='font-size:15px;margin-left:15px;overflow:hidden'>{{tel}}</label>        
       </view>
       <view class='down-center' style='height:50%'> 
-        <i class="iconfont icon-shouji" style="color:#B6D9A9"></i>
-        <label style='font-size:15px;margin-left:15px'>1380000678</label>
+           <label style='width:5em;text-align:right'>密码</label>
+       <label style='font-size:15px;margin-left:15px;border:1px solid #E3E3E3;'>点击修改</label>
       </view>
   </view>
 </view>
 <view>
-<button style='width:80%;margin-top:5px'>注册</button>
+<button wx:if='{{user==""}}' style='width:80%;margin-top:5px' bindtap='goToLoginPage'>登陆</button>
+<button wx:else style='width:80%;margin-top:5px' bindtap='logout'>退出</button>
 </view>
 <view class="go-center" style='margin-top:80px;font-size:14px;color:blue;' bindtap='bitphone'>
     <label style='border-bottom:1px solid blue'>客服电话：123-456-7890</label>

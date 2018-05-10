@@ -1,30 +1,34 @@
 // pages/list/list.js
 var goods = require('data.js')
+var app=getApp()
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    listData: [],
-    activeIndex: 0,
-    toView: 'a0',
-    scrollTop: 100,
+    type_list:[],
+    listData: [],//商品列表数据
+    activeProductType: 0,//商品类别
+    where:"",//搜索条件
+    pageIndex:1,//页码
+    cartList: [],//购物车
+    sumMonney: 0,//总金额
+    // scrollTop: 100,
     screenWidth: 667,
     showModalStatus: false,
-    currentType: 0,
-    currentIndex: 0,
-    sizeIndex: 0,
-    sugarIndex: 0,
-    temIndex: 0,
-    sugar: ['现宰', '冰鲜', '生活'],
-    tem: ['常规冰', '多冰', '少冰', '去冰', '温', '热'],
-    size: ['泰国', '越南', '菲律宾'],
-    cartList: [],
-    sumMonney: 0,
+    // currentType: 0,
+    // currentIndex: 0,
+    // sizeIndex: 0,
+    // sugarIndex: 0,
+    // temIndex: 0,
+    // sugar: ['现宰', '冰鲜', '生活'],
+    // tem: ['常规冰', '多冰', '少冰', '去冰', '温', '热'],
+    // size: ['泰国', '越南', '菲律宾'],
+   
     cupNumber:0,
     showCart: false,
-    loading: false
+    loading: true
   },
 
   /**
@@ -38,10 +42,12 @@ Page({
       title: '努力加载中',
     })
     //将本来的后台换成了easy-mock 的接口，所有数据一次请求完 略大。。
-    that.setData({
-      listData: goods.goods,
-      loading: true
-    })
+    // that.setData({
+    //   listData: goods.goods,
+    //   loading: true
+    // })
+    this.getTypeList()
+    this.getProductList(1,10,0,"")
     wx.hideLoading();
     // wx.request({
     //   url: 'https://easy-mock.com/mock/59abab95e0dc66334199cc5f/coco/aa',
@@ -65,63 +71,26 @@ Page({
     // })
   },
   selectMenu: function (e) {
-    var index = e.currentTarget.dataset.index
-    console.log(index)
+    var productTypeId = e.currentTarget.dataset.index
+    console.log(productTypeId)
     this.setData({
-      activeIndex: index,
-      toView: 'a' + index,
+      activeProductType: productTypeId,
+      pageIndex: 1,
       // scrollTop: 1186
     })
-    console.log(this.data.toView);
+    this.getProductList(1, 10, productTypeId,this.data.where)
   },
-  scroll: function (e) {
+  scrollToLower: function (e) {
     console.log(e)
-    var dis = e.detail.scrollTop
-    if (dis > 0 && dis < 1189) {
-      this.setData({
-        activeIndex: 0,
-      })
-    }
-    if (dis > 1189 && dis < 1867) {
-      this.setData({
-        activeIndex: 1,
-      })
-    }
-    if (dis > 1867 && dis < 2180) {
-      this.setData({
-        activeIndex: 2,
-      })
-    }
-    if (dis > 2180 && dis < 2785) {
-      this.setData({
-        activeIndex: 3,
-      })
-    }
-    if (dis > 2785 && dis < 2879) {
-      this.setData({
-        activeIndex: 4,
-      })
-    }
-    if (dis > 2879 && dis < 4287) {
-      this.setData({
-        activeIndex: 5,
-      })
-    }
-    if (dis > 4287 && dis < 4454) {
-      this.setData({
-        activeIndex: 6,
-      })
-    }
-    if (dis > 4454 && dis < 4986) {
-      this.setData({
-        activeIndex: 7,
-      })
-    }
-    if (dis > 4986) {
-      this.setData({
-        activeIndex: 8,
-      })
-    }
+    var index= ++this.data.pageIndex
+    this.getProductList(index, 10, this.data.activeProductType, this.data.where,true)
+   // var dis = e.detail.scrollTop
+ 
+    // if (dis > 4986) {
+    //   this.setData({
+    //     activeProductType: 8,
+    //   })
+    // }
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -159,23 +128,27 @@ Page({
     }
   },
 
-  addToCart: function () {
-    var a = this.data
-    var addItem = {
-      "name": a.listData[a.currentType].foods[a.currentIndex].name,
-      "price": a.listData[a.currentType].foods[a.currentIndex].specfoods[0].price,
-      "detail": a.size[a.sizeIndex] + "+" + a.sugar[a.sugarIndex] + "+" + a.tem[a.temIndex],
-      "number": 1,
-      "sum": a.listData[a.currentType].foods[a.currentIndex].specfoods[0].price,
+  addToCart: function (e) {
+    var product
+    var sumMonney
+    if (app.globalData.tmpProduct!=null){
+      product = app.globalData.tmpProduct
+      sumMonney = this.data.sumMonney + parseFloat(product.Price)
+      product.SumPrice = product.Price
+    }else{
+       product = e.currentTarget.dataset.item
+       sumMonney = this.data.sumMonney + parseFloat(product.Price)
     }
-    var sumMonney = a.sumMonney + a.listData[a.currentType].foods[a.currentIndex].specfoods[0].price;
-    var cartList = this.data.cartList;
-    cartList.push(addItem);
+    
+    var cartList = this.data.cartList
+    product.BuyNum=1
+    cartList.push(product);
+    
     this.setData({
       cartList: cartList,
       showModalStatus: false,
       sumMonney: sumMonney,
-      cupNumber: a.cupNumber + 1
+      cupNumber: this.data.cupNumber + 1
     });
     console.log(this.data.cartList)
   },
@@ -199,9 +172,9 @@ Page({
     var index = e.currentTarget.dataset.index;
     console.log(index)
     var cartList = this.data.cartList;
-    cartList[index].number++;
-    var sum = this.data.sumMonney + cartList[index].price;
-    cartList[index].sum += cartList[index].price;
+    cartList[index].BuyNum++;
+    var sum = parseFloat(this.data.sumMonney) + parseFloat(cartList[index].Price);
+    cartList[index].SumPrice += cartList[index].Price;
 
     this.setData({
       cartList: cartList,
@@ -214,12 +187,12 @@ Page({
     console.log(index)
     var cartList = this.data.cartList;
 
-    var sum = this.data.sumMonney - cartList[index].price;
-    cartList[index].sum -= cartList[index].price;
-    cartList[index].number == 1 ? cartList.splice(index, 1) : cartList[index].number--;
+    var sumMonney = this.data.sumMonney - cartList[index].Price;
+    cartList[index].SumPrice -= cartList[index].Price;
+    cartList[index].BuyNum == 1 ? cartList.splice(index, 1) : cartList[index].BuyNum--;
     this.setData({
       cartList: cartList,
-      sumMonney: sum,
+      sumMonney: sumMonney,
       showCart: cartList.length == 0 ? false : true,
       cupNumber: this.data.cupNumber-1
     });
@@ -235,8 +208,12 @@ Page({
     }
   },
 
-  goDetails: function () {
-    wx.setStorageSync('product', this.data);
+  goDetails: function (e) {
+    wx.setStorage({
+      key: 'param',
+      data: '?productId=' + e.currentTarget.dataset.id + '&Cookie=' + app.globalData.uIdSession ,
+    });
+   
     wx.navigateTo({
       url: '../details/details'
     })
@@ -250,7 +227,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+      this.addToCart()
   },
 
   /**
@@ -287,5 +264,144 @@ Page({
   onShareAppMessage: function () {
 
   },
+  //获取商品分类
+  getTypeList:function(){
+    var that=this
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'products',
+      data: {
+        types: 0,
+        options: 0,
+        // productTypeId: 1,
+        //getType: 0,
+        pageNo: 1,
+        pageSize: 0
 
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Cookie: app.globalData.uIdSession 
+      },
+      method: 'POST',
+      success: function (res) {
+
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none'
+          })
+        } else if (res.data.status == "302"){
+          wx.switchTab({
+            url: '../mine/mine',
+          })
+        }
+         else if (res.data.status == "200") {
+          var _list =new Array();
+          var list = res.data.productTypes
+          _list.push({ Id: 0, TypeName: "热销推选" })
+          for (var i = 0; i < list.length; i++) {
+            list[i].TypeName = decodeURIComponent(list[i].TypeName)
+            _list.push(list[i])
+          }
+          
+         that.setData({
+           type_list:_list
+         })     
+         
+
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+       
+      }
+    })
+  },
+ //获取商品
+  getProductList: function (index, size, productTypeId,where,isAppend) {
+    var that = this
+    //构造where
+    if(where!=""){
+      where=encodeURIComponent(where)
+      where =' and name like \'%'+ where+'%\' '
+    }
+    wx.showLoading({
+      title: '努力加载中',
+    })
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'products',
+      data: {
+        types: 1,
+        options: 0,
+        productTypeId: productTypeId,
+        getType: 0,
+        pageNo: index,
+        pageSize: size,
+        where:where
+
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Cookie: app.globalData.uIdSession
+      },
+      method: 'POST',
+      success: function (res) {
+
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none'
+          })
+        } else if (res.data.status == "302") {
+          wx.switchTab({
+            url: '../mine/mine',
+            fail:function(e){
+              console.log(e)
+            }
+          })
+        }
+        else if (res.data.status == "200") {
+          if (isAppend){
+            var _list = that.data.listData;
+          }else{
+            var _list = new Array();
+          }
+         
+          var list = res.data.products
+         // _list.push({ Id: 0, Name: "热销推选" })
+          for (var i = 0; i < list.length; i++) {
+            list[i].Name = decodeURIComponent(list[i].Name)
+            list[i].CoverUrl = app.globalData.hostUrl + list[i].CoverUrl
+            list[i].SumPrice = list[i].Price
+            _list.push(list[i])
+          }
+
+          that.setData({
+            listData: _list
+          })
+
+
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+
+      },
+      complete:function(){
+        wx.hideLoading()
+      }
+    })
+  },
+  //监控搜索输入
+  watchWhere:function(e){
+    this.setData({ where: e.detail.value})
+  },
+  //搜索商品
+  searchProduct:function(){
+    this.getProductList(1, 10, 0,this.data.where)
+  }
 })

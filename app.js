@@ -34,6 +34,14 @@ App({
     })
   },
   globalData: {
-    userInfo: null
+    uIdSession: null,
+    userInfo:null,
+    loginTime:null,
+    uId:null,
+    hostUrl:"https://localhost/",
+    tmpProduct:null,
+    
+   
+
   }
 })

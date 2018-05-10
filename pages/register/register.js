@@ -20,40 +20,39 @@ Page({
          that.setData({vId:res.data})
       },
     })
-    //获取用户nicName
-    wx.getUserInfo({
-      success: function (res) {
-        var userInfo = res.userInfo
-        that.setData({
-          name: userInfo.nickName          
-        })
-       console.log(that.data)
-      }
+    //设置用户nicName
+    that.setData({
+      name: app.globalData.userInfo.nickName
     })
 
   },
   registerUser:function(e){
     var that=this
-    that.setData()
+   // that.setData()
     wx.request({
       //获取openid接口  
-      url: 'https://mushangyun.com/register',
+      url: app.globalData.hostUrl +'register',
       data: {
-        vId: that.data.vId,
-        name: that.data.name,
+        vid: that.data.vId,
+        name: encodeURIComponent(that.data.name)  ,
         tel: that.data.tel,
         pwd: that.data.pwd,
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
       },
       method: 'POST',
       success: function (res) {
         console.log(res.data)
         if(res.data.status=="200"){
-          wx.navigateTo({
-            url: '../index/index',
-          })
+          // wx.navigateTo({
+          //   url: '../index/index',
+          // })
+          that.loginUser()
         } else if (res.data.status == "400"){
            wx.showToast({
              title:res.data.msg,
+             icon:'none'
            })
         }
 
@@ -72,6 +71,63 @@ Page({
     var that = this
     that.setData({ pwd: e.detail.value })
   },
+  watchName: function (e) {
+    var that = this
+    that.setData({ name: e.detail.value })
+  },
+  //登陆
+  loginUser: function () {
+    var that = this
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'login',
+      data: {
+        options: 0,
+        tel: that.data.tel,
+        pwd: that.data.pwd
 
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      method: 'POST',
+      success: function (res) {
+
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none'
+          })
+        } else if (res.data.status == "200") {
+         
+          //保存用户信息         
+          app.globalData.uId = res.data.userId
+          app.globalData.uIdSession = res.header["set-cookie"].split(';')[0]
+          app.globalData.loginTime = res.data.time
+          //跳转到home页面
+          wx.showToast({
+            title: '注册成功，正在为你跳转到首页',
+            icon:"none"
+          })
+          setTimeout(function(){
+            wx.switchTab({
+              url: '../index/index',
+              fail: function (res) {
+                console.log(res)
+              }
+            })
+          },2000)
+        
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+        // wx.navigateTo({
+        //   url: '../register/register',
+        // })
+      }
+    })
+  },
 
 })
