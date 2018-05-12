@@ -135,6 +135,8 @@ Page({
       product = app.globalData.tmpProduct
       sumMonney = this.data.sumMonney + parseFloat(product.Price)
       product.SumPrice = product.Price
+      //清除临时商品
+      app.globalData.tmpProduct=null
     }else{
        product = e.currentTarget.dataset.item
        sumMonney = this.data.sumMonney + parseFloat(product.Price)

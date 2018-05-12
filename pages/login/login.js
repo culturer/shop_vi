@@ -82,7 +82,7 @@ Page({
       //获取openid接口  
       url: app.globalData.hostUrl+'login',
       data: {
-        options: 1,
+        options: 0,
         tel: that.data.tel,
         pwd:that.data.pwd
 

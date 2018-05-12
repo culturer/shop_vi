@@ -82,3 +82,11 @@ page{
 .go-top-10{
   margin-top:10px
 }
+.operate-bar{
+  z-index: 1001; 
+  position: fixed;
+  bottom: 0px;
+  height:55px;
+  width:100%;
+  display: flex;
+}

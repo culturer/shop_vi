@@ -1,29 +1,51 @@
 // pages/order/detail/detail.js
+var app=getApp()
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    cartList: [],
-    sumMonney: 0,
-    cutMonney: 0,
-    cupNumber: 0
+    confirmOrder: null,
+    payTypes:[{
+      name:'微信支付',
+      value:'wxPay',
+      disabled:true,
+      checked: false,
+    },{
+        name: '货到付款',
+        value: 'cashPay',
+        disabled: false,
+        checked: true,
+    }],
+    payType: 'cashPay'
   },
-
+  watchPayType:function(e){
+    //console.log(e)
+    this.setData({ payType: e.detail.value })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    var that=this
     wx.setNavigationBarTitle({
       title: '订单详情'
+    })   
+    wx.getStorage({
+      key: 'confirmOrder',
+      success: function(res) {
+        for (var i=0;i< res.data.ModProducts.length;i++){
+          res.data.ModProducts[i].Name = decodeURIComponent(res.data.ModProducts[i].Name)
+        }
+        res.data.TmpOrder.Address = decodeURIComponent(res.data.TmpOrder.Address)
+        res.data.TmpOrder.Remark = decodeURIComponent(res.data.TmpOrder.Remark)
+        that.setData({
+          confirmOrder: res.data,
+        })
+      },
     })
-    this.setData({
-      cartList: wx.getStorageSync('cartList'),
-      sumMonney: wx.getStorageSync('sumMonney'),
-      cutMonney: wx.getStorageSync('sumMonney') > 19 ? 3 : 0,
-      cupNumber: wx.getStorageSync('cupNumber'),
-    })
+   
   },
 
   /**
@@ -73,5 +95,64 @@ Page({
    */
   onShareAppMessage: function () {
   
-  }
+  },
+  //获取商品
+  confirmOrder: function () {
+    var that = this
+  
+    wx.showLoading({
+      title: '订单提交中',
+    })
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'order',
+      data: {
+        act: 'createOrder',
+        PayType:that.data.payType
+
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Cookie: app.globalData.uIdSession
+      },
+      method: 'POST',
+      success: function (res) {
+
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none'
+          })
+          wx.setStorage({
+            key: 'confirmOrder',
+            data: null,
+          })
+        } else if (res.data.status == "302") {
+          wx.switchTab({
+            url: '../mine/mine',
+            fail: function (e) {
+              console.log(e)
+            }
+          })
+        }
+        else if (res.data.status == "200") {
+          wx.setStorage({
+            key: 'confirmOrder',
+            data: null,
+          })
+          wx.switchTab({
+            url: '../list/list',
+          })
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+
+      },
+      complete: function () {
+        wx.hideLoading()
+      }
+    })
+  },
 })
