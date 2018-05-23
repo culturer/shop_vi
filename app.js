@@ -38,7 +38,8 @@ App({
     userInfo:null,
     loginTime:null,
     uId:null,
-    hostUrl:"https://localhost/",
+   // hostUrl:"https://localhost/",
+    hostUrl: "https://mushangyun.com/",
     tmpProduct:null,
     
     

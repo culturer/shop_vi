@@ -18,8 +18,10 @@ Page({
       key: 'vId',
       success: function(res) {
          that.setData({vId:res.data})
+         console.log(that.data.vId)
       },
     })
+    
     //设置用户nicName
     that.setData({
       name: app.globalData.userInfo.nickName
@@ -33,7 +35,7 @@ Page({
       //获取openid接口  
       url: app.globalData.hostUrl +'register',
       data: {
-        vid: that.data.vId,
+        vId: that.data.vId,
         name: encodeURIComponent(that.data.name)  ,
         tel: that.data.tel,
         pwd: that.data.pwd,

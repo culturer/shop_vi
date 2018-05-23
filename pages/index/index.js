@@ -51,23 +51,30 @@ Page({
       success: function (res) {
         wx.request({
           //获取openid接口  
-          url: 'https://api.weixin.qq.com/sns/jscode2session',
+          // url: 'https://api.weixin.qq.com/sns/jscode2session',
+          url: app.globalData.hostUrl + 'wxhelper',
           data: {
+            act:'getOpenId',
             appid: APP_ID,
             secret: APP_SECRET,
             js_code: res.code,
             grant_type: 'authorization_code'
           },
-          method: 'GET',
+          header: {
+            'content-type': 'application/x-www-form-urlencoded',
+            
+          },
+          method: 'POST',
           success: function (res) {
-            console.log(res.data)
-            OPEN_ID = res.data.openid;//获取到的openid 
+           var obj = JSON.parse(res.data.openid)
+            OPEN_ID = obj.openid;//获取到的openid 
+            console.log(OPEN_ID)
             that.setData({ OPEN_ID: OPEN_ID})
             wx.setStorage({
               key: 'vId',
               data: OPEN_ID,
             }) 
-            SESSION_KEY = res.data.session_key;//获取到session_key  
+            SESSION_KEY = obj.session_key;//获取到session_key  
             // wx.showToast({
             //   title: OPEN_ID,
             // })
@@ -105,7 +112,7 @@ Page({
             title: "欢迎选购",
           })
           //保存用户信息
-         
+          console.log(res)
           app.globalData.uIdSession = res.header["set-cookie"].split(';')[0]
           app.globalData.loginTime = res.data.time
           app.globalData.uId = res.data.userId
