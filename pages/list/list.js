@@ -46,8 +46,9 @@ Page({
     //   listData: goods.goods,
     //   loading: true
     // })
+    this.setData({ activeProductType: this.options.categoryId })
     this.getTypeList()
-    this.getProductList(1,10,0,"")
+    this.getProductList(1, 10, that.data.activeProductType,"")
     wx.hideLoading();
     // wx.request({
     //   url: 'https://easy-mock.com/mock/59abab95e0dc66334199cc5f/coco/aa',
@@ -228,7 +229,9 @@ Page({
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {
+  onShow: function (options) {
+  
+    
       this.addToCart()
   },
 

@@ -6,7 +6,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    statusType: ["待付款", "待发货", "待收货", "待评价", "已完成"],
+    statusType: ["货到付款", "待发货", "待收货", "待评价", "已完成"],
     currentType: 0,
     tabClass: ["", "", "", "", ""],
     countList:0,
@@ -16,7 +16,8 @@ Page({
     operate:'',//操作
     id:null,
     comments:"",
-    confirmOrder:null
+    confirmOrder:null,
+    pageIndex:0
   },
 
   /**
@@ -27,7 +28,7 @@ Page({
   },
   onShow:function(){
     var that = this
-    that.getOrderList()
+    that.getOrderList(1,8)
     wx.getStorage({
       key: 'confirmOrder',
       success: function(res) {
@@ -46,30 +47,31 @@ Page({
   statusTap: function (e) {
     var curType = e.currentTarget.dataset.index;
     this.data.currentType = curType
+    this.data.pageIndex=0
     this.setData({
       currentType: curType
     });
     this.onShow();
   },
   //获取订单列表
-  getOrderList:function(){
+  getOrderList:function(index,size){
     var that = this
     //构造where参数
     var where=""
     if (that.data.currentType==0){
-      where = ' and is_cancel=0 and is_pay=0 and user_id=' + app.globalData.uId
+      where = ' and is_cancel=0 and is_pay=0 '
       
     } else if (that.data.currentType == 1){
-      where = ' and is_cancel=0  and is_dlivery=0 and user_id=' + app.globalData.uId
+      where = ' and is_cancel=0  and is_dlivery=0 '
     }
     else if (that.data.currentType == 2) {
-      where = ' and is_cancel=0  and is_sign=0 and is_dlivery=1 and user_id=' + app.globalData.uId
+      where = ' and is_cancel=0  and is_sign=0 and is_dlivery=1 '
     }
     else if (that.data.currentType == 3) {
-      where = ' and is_cancel=0 and is_comment=0 and is_sign=1 and user_id=' + app.globalData.uId
+      where = ' and is_cancel=0 and is_comment=0 and is_sign=1 '
     }
     else if (that.data.currentType == 4) {
-      where = ' and is_cancel=0 and is_sign=1 and user_id=' + app.globalData.uId
+      where = ' and is_cancel=0 and is_sign=1 '
     }
     wx.showLoading({
       title: '正在获取订单'
@@ -78,10 +80,10 @@ Page({
       //获取openid接口  
       url: app.globalData.hostUrl + 'order',
       data: {
-        act: 'getOrderPage',
+        act: 'getOrderPageByUser',
         where: where,
-        size:8,
-        index:1
+        size:size,
+        index:index
         
       },
       header: {
@@ -270,5 +272,27 @@ Page({
     wx.navigateTo({
       url: '../detail/detail'
     })
-  }
+  },
+  goToInfo:function(e){
+    wx.setStorage({
+      key: 'orderId',
+      data:  e.currentTarget.dataset.id ,
+    });
+
+    wx.navigateTo({
+      url: '../info/info'
+    })
+  },
+  scrollToLower: function (e) {
+    console.log(e)
+    var index = ++this.data.pageIndex
+    this.getOrderList(index, 8)
+    // var dis = e.detail.scrollTop
+
+    // if (dis > 4986) {
+    //   this.setData({
+    //     activeProductType: 8,
+    //   })
+    // }
+  },
 })

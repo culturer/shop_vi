@@ -1,24 +1,17 @@
 {
   "pages": [
-    
-        "pages/index/index", 
-        "pages/register/register",
-    
-
-      "pages/login/login",
-
+    "pages/index/index",
+    "pages/register/register",
+    "pages/login/login",
     "pages/details/details",
-
-    
-    
     "pages/logs/logs",
     "pages/list/list",
     "pages/order/balance/balance",
     "pages/mine/mine",
     "pages/order/list/list",
     "pages/order/detail/detail",
-    "pages/template/template"
-  
+    "pages/template/template",
+    "pages/order/info/info"
   ],
   "window": {
     "backgroundTextStyle": "light",

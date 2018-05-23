@@ -37,6 +37,12 @@
      <view class='order-info-title flex-display' >订单地址
       <view class="order-info-li">{{confirmOrder.TmpOrder.Address}}</view>
     </view>
+      <view class='order-info-title flex-display' >联系人
+      <view class="order-info-li">{{confirmOrder.TmpOrder.Receiver}}</view>
+    </view>
+     <view class='order-info-title flex-display' >联系电话
+      <view class="order-info-li">{{confirmOrder.TmpOrder.Phone}}</view>
+    </view>
       <view class='order-info-title flex-display' >支付方式
       <view class="order-info-li">
       <radio-group class="radio-group" bindchange="watchPayType">

@@ -9,6 +9,7 @@ Page({
   data: {
     //轮播图
     listData:[],
+    hotData: [],
     typeList:[],
     // imgUrls: [
     //   '../../images/seafood_1.jpg',
@@ -24,10 +25,19 @@ Page({
     circular:true,
     
   },
+  onShow:function(){
+    if (app.globalData.tmpProduct != null) {
+      wx.navigateTo({
+        url: '../list/list',
+      })
+
+    }
+  },
   onLoad: function () {
     this.getOpenId(this.loginUser)
     this.getProductList(1,5,0)
     this.getProductTypeList()
+    this.getHotProductList(1,10,0)
   },
   golist: function () {
     wx.navigateTo({
@@ -236,7 +246,7 @@ Page({
           // _list.push({ Id: 0, Name: "热销推选" })
           for (var i = 0; i < list.length; i++) {
             list[i].TypeName = decodeURIComponent(list[i].TypeName)
-          
+            list[i].Icon = app.globalData.hostUrl + list[i].Icon
             // list[i].SumPrice = list[i].Price
             _list.push(list[i])
           }
@@ -256,6 +266,92 @@ Page({
       complete: function () {
         wx.hideLoading()
       }
+    })
+  },
+  //获取热推荐商品
+  getHotProductList: function (index, size, productTypeId, isAppend) {
+    var that = this
+    //构造where
+    var where = " and is_hot=1 "
+    wx.showLoading({
+      title: '努力加载中',
+    })
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'products',
+      data: {
+        types: 1,
+        options: 0,
+        productTypeId: productTypeId,
+        getType: 0,
+        pageNo: index,
+        pageSize: size,
+        where: where
+
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Cookie: app.globalData.uIdSession
+      },
+      method: 'POST',
+      success: function (res) {
+
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none'
+          })
+        } else if (res.data.status == "302") {
+          wx.switchTab({
+            url: '../mine/mine',
+            fail: function (e) {
+              console.log(e)
+            }
+          })
+        }
+        else if (res.data.status == "200") {
+          if (isAppend) {
+            var _list = that.data.hotData;
+          } else {
+            var _list = new Array();
+          }
+
+          var list = res.data.products
+          // _list.push({ Id: 0, Name: "热销推选" })
+          for (var i = 0; i < list.length; i++) {
+            list[i].Name = decodeURIComponent(list[i].Name)
+            list[i].CoverUrl = app.globalData.hostUrl + list[i].CoverUrl
+            list[i].Msg = decodeURIComponent(list[i].Msg)
+            // list[i].SumPrice = list[i].Price
+            _list.push(list[i])
+          }
+
+          that.setData({
+            hotData: _list
+          })
+
+
+        }
+
+      },
+      fail: function (res) {
+        console.log(res)
+
+      },
+      complete: function () {
+        wx.hideLoading()
+      }
+    })
+  },
+  //详情
+  goDetails: function (e) {
+    wx.setStorage({
+      key: 'param',
+      data: '?productId=' + e.currentTarget.dataset.id + '&Cookie=' + app.globalData.uIdSession,
+    });
+
+    wx.navigateTo({
+      url: '../details/details'
     })
   },
 })

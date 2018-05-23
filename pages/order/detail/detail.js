@@ -40,6 +40,7 @@ Page({
         }
         res.data.TmpOrder.Address = decodeURIComponent(res.data.TmpOrder.Address)
         res.data.TmpOrder.Remark = decodeURIComponent(res.data.TmpOrder.Remark)
+        res.data.TmpOrder.Receiver = decodeURIComponent(res.data.TmpOrder.Receiver)
         that.setData({
           confirmOrder: res.data,
         })

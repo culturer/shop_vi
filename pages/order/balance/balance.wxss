@@ -102,6 +102,9 @@ page{
   font-size:13px;
   padding:5px;
 }
+input{
+  padding:5px;
+}
 .order-info{
   background: white;
   margin-top:10px;

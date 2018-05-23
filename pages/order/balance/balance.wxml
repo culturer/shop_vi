@@ -12,15 +12,21 @@
     </label>
     
     </view>
-    <view class='cart-list-box'>
-   
     
-    </view>
      <view class='cart-list-box'>
   <label class='top-left-label'> 配送地址：{{address}}</label>
     
     </view>
-
+    <view class='cart-list-box'>
+   <label class='top-left-label'> 收货人：</label>
+    <input placeholder='联系人姓名'value='{{receiver}}'bindinput='watchReceiver'></input>
+   
+    </view>
+ <view class='cart-list-box'>
+   <label class='top-left-label'> 电话：</label>
+    <input placeholder='联系人电话'value='{{phone}}'bindinput='watchPhone'></input>
+   
+    </view>
   </view>
   <!-- 订单详情 -->
   <view class='order-info'>

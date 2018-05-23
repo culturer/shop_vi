@@ -12,7 +12,9 @@ Page({
     cupNumber:0,
     address:"",
     position:'',
-    remark:""
+    remark:"",
+    phone:"",
+    receiver:''
   },
 
   /**
@@ -30,7 +32,7 @@ Page({
       cupNumber: wx.getStorageSync('cupNumber'),
     })
     that.chooseAddress()
- 
+    that.getLoginUser()
   },
   gopay:function(){
     var that = this
@@ -53,6 +55,8 @@ Page({
           Position:JSON.stringify(that.data.position),
           Remark: encodeURIComponent( that.data.remark),
           Address: encodeURIComponent(that.data.address),
+          Receiver: encodeURIComponent(that.data.receiver),
+          Phone: encodeURIComponent(that.data.phone),
           UserId: app.globalData.uId,
           OrderNum: "U" + app.globalData.uId+'T'+new Date().getTime()
         })
@@ -79,7 +83,7 @@ Page({
           })
         }
         else if (res.data.status == "200") {        
-          console.log(res.data)
+          console.log(JSON.stringify(res.data) )
           wx.setStorage({
             key: 'confirmOrder',
             data: res.data.confirmOrder,
@@ -109,6 +113,12 @@ Page({
   watchRemark: function (e) {
     this.setData({ remark: e.detail.value })
   },
+  watchReceiver: function (e) {
+    this.setData({ receiver: e.detail.value })
+  },
+  watchPhone: function (e) {
+    this.setData({ phone: e.detail.value })
+  },
   chooseAddress:function(){
     var that=this
     wx.chooseLocation({
@@ -120,6 +130,44 @@ Page({
         })
 
       },
+    })
+  },
+  //获取用户
+  getLoginUser: function () {
+    var that = this
+    wx.request({
+      //获取openid接口  
+      url: app.globalData.hostUrl + 'user',
+      data: {
+        page: "login",
+
+      },
+      header: {
+        Cookie: app.globalData.uIdSession
+      },
+      method: 'Get',
+      success: function (res) {
+
+        console.log(res.data)
+        //var date = JSON.parse(res.data)
+        if (res.data.status == "400") {
+          wx.showToast({
+            title: '获取用户信息失败',
+            icon: 'none'
+          })
+        } else if (res.data.status == "200") {
+
+          that.setData({
+            receiver:decodeURIComponent(res.data.user.Name),
+            phone: res.data.user.Tel,
+          })
+        }
+
+
+      },
+      fail: function (res) {
+        console.log(res)
+      }
     })
   },
   /**
